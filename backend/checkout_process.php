@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once "db.php"; // koneksi $conn
-require_once __DIR__ . '/../env.php';
 
 /* =============================================================
    1. MUST LOGIN
