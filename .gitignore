@@ -1,0 +1,27 @@
+@"
+# Environment files (NEVER commit)
+.env
+.env.*
+
+# AWS keys, credentials, configs
+*.pem
+*.key
+credentials
+config
+
+# Logs & debug outputs
+*.log
+debug_*.json
+debug_*.txt
+*_debug_*.txt
+sns_debug_response.txt
+debug_email_payload.json
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+
+# Dependencies / build (optional, kalau ada)
+vendor/
+node_modules/
+"@ | Set-Content .gitignore
