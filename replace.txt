@@ -1,3 +1,0 @@
-AKIA[0-9A-Z]{16}==>REMOVED
-AWS_SECRET_ACCESS_KEY==>REMOVED
-aws_secret_access_key==>REMOVED
