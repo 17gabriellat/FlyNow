@@ -1,6 +1,6 @@
 <?php
-// File: backend/admin/export_laporan_rute.php
-// Endpoint ini menghasilkan file CSV dari data laporan penjualan per rute yang difilter.
+// File: backend/admin/export_laporan_flight.php
+// Endpoint ini menghasilkan file CSV dari data laporan penjualan per Flight Code yang difilter.
 
 require_once "../db.php"; 
 // require_once "../akses_admin.php"; // Aktifkan jika diperlukan validasi sesi/akses
@@ -21,9 +21,8 @@ function bind_parameters_safely($stmt, $types, $params) {
     call_user_func_array([$stmt, 'bind_param'], $references);
 }
 
-// --- FUNGSI MENGAMBIL DATA AGREGASI PER RUTE (TANPA LIMIT/OFFSET) ---
-// PENAMBAHAN: Menerima $keyword
-function getExportOrdersByRoute($conn, $start_date = null, $end_date_sql = null, $keyword = null) {
+// --- FUNGSI MENGAMBIL DATA AGREGASI PER FLIGHT CODE (TANPA LIMIT/OFFSET) ---
+function getExportOrdersByFlight($conn, $start_date = null, $end_date_sql = null, $keyword = null) {
     $where = '';
     $params = [];
     $types = '';
@@ -40,7 +39,7 @@ function getExportOrdersByRoute($conn, $start_date = null, $end_date_sql = null,
         $types .= 's';
     }
     
-    // PENAMBAHAN: Klausa WHERE untuk filter keyword
+    // Klausa WHERE untuk filter keyword (Flight Code atau Rute)
     if ($keyword) {
         $where .= " AND (f.flight_code LIKE ? OR CONCAT(oa.airport_code, '-', da.airport_code) LIKE ?)";
         // Tambahkan wildcard (%) pada parameter sebelum binding
@@ -52,6 +51,7 @@ function getExportOrdersByRoute($conn, $start_date = null, $end_date_sql = null,
 
     $sql = "
         SELECT 
+            f.flight_code,
             oa.airport_code AS origin_airport_code, 
             da.airport_code AS destination_airport_code, 
             SUM(t.total_price) AS total_pendapatan,
@@ -69,7 +69,7 @@ function getExportOrdersByRoute($conn, $start_date = null, $end_date_sql = null,
             t.payment_status = 'Paid'
             " . $where . " 
         GROUP BY 
-            oa.airport_code, da.airport_code 
+            f.flight_code 
         ORDER BY 
             total_pendapatan DESC 
     ";
@@ -89,16 +89,15 @@ function getExportOrdersByRoute($conn, $start_date = null, $end_date_sql = null,
 // 1. Ambil filter dari URL (GET)
 $start_date = $_GET['start_date'] ?? null;
 $end_date = $_GET['end_date'] ?? null;
-$keyword = $_GET['keyword'] ?? null; // PENAMBAHAN: Ambil keyword
+$keyword = $_GET['keyword'] ?? null;
 
 $end_date_sql = $end_date ? $end_date . ' 23:59:59' : null;
 
 // 2. Ambil semua data sesuai filter (tanpa pagination)
-// PENAMBAHAN: Kirim parameter keyword
-$data_penjualan = getExportOrdersByRoute($conn, $start_date, $end_date_sql, $keyword);
+$data_penjualan = getExportOrdersByFlight($conn, $start_date, $end_date_sql, $keyword);
 
 // 3. Konfigurasi Nama File
-$filename = 'Laporan_Penjualan_Rute';
+$filename = 'Laporan_Penjualan_Flight';
 if ($start_date) { $filename .= '_' . $start_date; }
 if ($end_date) { $filename .= '_to_' . $end_date; }
 if ($keyword) { $filename .= '_filter_' . str_replace([' ', '-'], '_', $keyword); }
@@ -115,7 +114,7 @@ $output = fopen('php://output', 'w');
 // BOM (Byte Order Mark) untuk membantu Excel mengenali UTF-8
 fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); 
 // Tulis Header CSV (gunakan ; sebagai delimiter untuk Excel)
-$csv_headers = ['Rute Penerbangan', 'Tanggal Penerbangan Terakhir', 'Tiket Terjual', 'Total Pendapatan (Rp)'];
+$csv_headers = ['Kode Penerbangan', 'Rute Penerbangan', 'Tanggal Penerbangan Terakhir', 'Tiket Terjual', 'Total Pendapatan (Rp)'];
 fputcsv($output, $csv_headers, ';');
 
 // Tulis Data Baris
@@ -125,6 +124,7 @@ if ($data_penjualan->num_rows > 0) {
         
         // Format data sesuai kebutuhan Excel
         fputcsv($output, [
+            $row['flight_code'],
             $rute,
             date('Y-m-d', strtotime($row['latest_departure_date'])),
             $row['total_tiket_terjual'],

@@ -5,9 +5,16 @@ require_once "../backend/db.php";
 require_once "../backend/akses_admin.php";
 
 $route_id = $_GET['route'] ?? ''; 
+$back_params = $_GET['back_params'] ?? ''; 
+$back_url = "laporan.php";
+
+// Pastikan back_params di-decode agar bisa diparsing dengan benar nanti
+$decoded_back_params = $back_params ? urldecode($back_params) : "";
+
 
 if (empty($route_id) || !strpos($route_id, '-')) {
-    header('Location: laporan.php'); // Redirect jika parameter tidak valid
+    // Redirect jika parameter tidak valid, kembali ke laporan umum atau menggunakan filter jika tersedia
+    header('Location: laporan.php?' . $decoded_back_params); 
     exit;
 }
 
@@ -21,7 +28,7 @@ if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
 
 
-// --- QUERY UNTUK DETAIL TRANSAKSI (Sama seperti API sebelumnya) ---
+// --- QUERY UNTUK DETAIL TRANSAKSI ---
 
 // Base Query
 $query_base = "
@@ -72,9 +79,20 @@ require_once '../layouts/admin_sidebar.php';
 
 <main class="flex-1 p-10">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold"><?php echo $admin_page_title; ?></h1>
-        <a href="laporan.php" class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        <h1 class="text-3xl font-bold"><?= $admin_page_title; ?></h1>
+
+        <?php 
+        // Konstruksi URL kembali dengan mempertahankan semua filter yang sebelumnya dikirim
+        $back_url_with_params = "laporan.php?" . ($back_params ? htmlspecialchars($decoded_back_params) : "type=route"); 
+        ?>
+        <a href="<?= $back_url_with_params ?>"
+        class="text-blue-600 hover:text-blue-800 text-sm font-semibold flex items-center">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
             Back to Report
         </a>
     </div>
@@ -108,31 +126,35 @@ require_once '../layouts/admin_sidebar.php';
                     <?php endwhile; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">There are no paid transactions for this route.</td>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Tidak ada customer yang tampil untuk rute ini.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
         </table>
     </div>
 
-    <?php if ($total_pages > 1): ?>
+    <?php if ($total_pages >= 1): ?>
     <div class="mt-4 flex justify-center">
         <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
             <?php 
             $route_param = urlencode($route_id);
+            
+            // Perlu menambahkan parameter back_params ke tautan pagination
+            $pagination_base_url = "?route=$route_param&back_params=" . urlencode($back_params);
+
             $prev_page = $page > 1 ? $page - 1 : 1;
             $prev_class = $page > 1 ? 'hover:bg-gray-50' : 'bg-gray-100 text-gray-400 cursor-default';
-            $prev_link = "?route=$route_param&page=$prev_page";
+            $prev_link = $pagination_base_url . "&page=$prev_page";
             echo '<a href="' . $prev_link . '" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 ' . $prev_class . '">Previous</a>';
 
             for ($i = 1; $i <= $total_pages; $i++) {
                 $active_class = ($i == $page) ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50';
-                echo '<a href="?route=' . $route_param . '&page=' . $i . '" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium ' . $active_class . '">' . $i . '</a>';
+                echo '<a href="' . $pagination_base_url . '&page=' . $i . '" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium ' . $active_class . '">' . $i . '</a>';
             }
 
             $next_page = $page < $total_pages ? $page + 1 : $total_pages;
             $next_class = $page < $total_pages ? 'hover:bg-gray-50' : 'bg-gray-100 text-gray-400 cursor-default';
-            $next_link = "?route=$route_param&page=$next_page";
+            $next_link = $pagination_base_url . "&page=$next_page";
             echo '<a href="' . $next_link . '" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 ' . $next_class . '">Next</a>';
             ?>
         </nav>
