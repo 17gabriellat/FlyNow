@@ -1,8 +1,10 @@
 <?php
-$host = "flynow-db.cx4mw8eq6yvl.us-east-1.rds.amazonaws.com";
-$username = "admin";
-$password = "FlyNow2025!";
-$database = "flynow_db";
+require_once __DIR__ . '/../env.php';
+
+$host = getenv("DB_HOST");
+$username = getenv("DB_USERNAME");
+$password = getenv("DB_PASSWORD");
+$database = getenv("DB_NAME");
 
 $conn = new mysqli($host, $username, $password, $database);
 
