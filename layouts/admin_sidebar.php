@@ -35,7 +35,7 @@ $active_page = ($current_page === "detail_pesanan.php") ? "pesanan.php" : $curre
 
         <a href="pesanan.php"
            class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700
-           <?= ($active_page === 'pesanan.php') ? 'bg-gray-700' : '' ?>">
+           <?= ($active_page === 'pesanan.php') || ($active_page === 'detail_pesanan.php') ? 'bg-gray-700' : '' ?>">
             Order Management
         </a>
 
@@ -47,8 +47,14 @@ $active_page = ($current_page === "detail_pesanan.php") ? "pesanan.php" : $curre
 
         <a href="laporan.php"
            class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700
-           <?= ($active_page === 'laporan.php') ? 'bg-gray-700' : '' ?>">
+           <?= ($active_page === 'laporan.php' )||($active_page === 'detail_penjualan_rute.php' ) ||($active_page ==='detail_penjualan_flight.php' ) ? 'bg-gray-700' : '' ?>">
             Report
+        </a>
+
+        <a href="article.php"
+           class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700
+           <?= ($active_page === 'arcticle.php') || ($active_page === 'article_form.php') ? 'bg-gray-700' : '' ?>">
+            Article
         </a>
 
         <a href="../backend/logout.php"
