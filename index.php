@@ -102,38 +102,20 @@ require_once 'layouts/header.php';
     </div>
 </header>
 
-<!-- PROMOS -->
+<!-- ARTICLE -->
 <div class="container mx-auto px-6 py-16">
-    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Special Deals For You</h2>
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">
+        Special Articles For You
+    </h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img src="https://via.placeholder.com/400x250.png?text=Bali+Promo" class="w-full h-48 object-cover">
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-2">20% Off to Bali</h3>
-                <p class="text-gray-600">Enjoy unforgettable vacation with exclusive discounts.</p>
-            </div>
+    <div id="articleContainer"
+        class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="col-span-3 text-center text-gray-500">
+            Loading articles...
         </div>
-
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img src="https://via.placeholder.com/400x250.png?text=Singapore+Promo" class="w-full h-48 object-cover">
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-2">Singapore Cashback</h3>
-                <p class="text-gray-600">Fly to Singapore and get cashback up to IDR 500k.</p>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img src="https://via.placeholder.com/400x250.png?text=Japan+Promo" class="w-full h-48 object-cover">
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-2">Fly to Japan</h3>
-                <p class="text-gray-600">Cherry Blossom season? Why not!</p>
-            </div>
-        </div>
-
     </div>
 </div>
+
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -211,6 +193,50 @@ require_once 'layouts/header.php';
 
             if (!isChecked) $("#returnDate").val("");
         });
+
+        // console.log("BASE_IMAGE_URL =", BASE_IMAGE_URL);
+
+        $.get("backend/get_articles.php", function(res) {
+
+            const container = $("#articleContainer");
+            container.html("");
+
+            if (res.length === 0) {
+                container.html(`
+                <div class="col-span-3 text-center text-gray-500">
+                    No articles available.
+                </div>
+            `);
+                return;
+            }
+
+            res.forEach(a => {
+                container.append(`
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    ${a.image_url ? `
+                        <img src="${a.image_url}"
+                             class="w-full h-48 object-cover">
+                    ` : ``}
+
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">
+                            ${a.title}
+                        </h3>
+
+                        <p class="text-gray-600 mb-4">
+                            ${a.excerpt}
+                        </p>
+
+                        <a href="article_detail.php?id=${a.id}"
+                           class="text-blue-600 font-semibold hover:underline">
+                            Read more →
+                        </a>
+                    </div>
+                </div>
+            `);
+            });
+
+        }, "json");
 
     });
 </script>

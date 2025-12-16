@@ -6,6 +6,8 @@ if(isset($_SESSION['id_user'])){
     $is_logged_in = true;
     $user_name = $_SESSION['name']; 
 };
+// determine current page for active nav link styling
+$current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -23,16 +25,16 @@ if(isset($_SESSION['id_user'])){
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <a href="index.php" class="text-2xl font-bold text-blue-600">FLYNOW</a>
             <div class="space-x-4 flex items-center">
-                <a href="index.php" class="text-gray-600 hover:text-blue-600">Home</a>
+                <a href="index.php" class="<?php echo $current_page === 'index.php' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'; ?>">Home</a>
                 
                 <?php if ($is_logged_in): ?>
-                    <a href="pesanan_saya.php" class="text-gray-600 hover:text-blue-600">Pesanan Saya</a>
-                    <a href="akun_saya.php" class="text-gray-600 hover:text-blue-600">
-                        Akun Saya (<?php echo $user_name; ?>)
+                    <a href="pesanan_saya.php" class="<?php echo $current_page === 'pesanan_saya.php' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'; ?>">My Orders</a>
+                    <a href="akun_saya.php" class="<?php echo $current_page === 'akun_saya.php' ? 'text-blue-600' : 'text-gray-600 hover:text-blue-600'; ?>">
+                        My Account (<?php echo $user_name; ?>)
                     </a>
                     <a href="backend/logout.php" class="text-red-600 hover:text-red-800 ml-4">Logout</a>
                 <?php else: ?>
-                    <a href="login.php" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Login</a>
+                    <a href="login.php" class="<?php echo $current_page === 'login.php' ? 'bg-blue-700 text-white px-4 py-2 rounded-md' : 'bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700'; ?>">Login</a>
                 <?php endif; ?>
 
             </div>
