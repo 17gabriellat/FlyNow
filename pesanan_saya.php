@@ -26,6 +26,7 @@ $sql_aktif = "
         t.id_transaction,
         t.booking_code,
         f.flight_code,
+        f.departure_date,
         f.departure_time,
         oa.city AS origin_city,
         da.city AS dest_city
@@ -35,7 +36,7 @@ $sql_aktif = "
     JOIN airports da ON da.id_airport = f.destination_airport
     WHERE t.user_id = ?
       AND t.payment_status = 'PAID'
-      AND f.departure_time >= NOW()
+      AND (f.departure_date >= NOW() OR (f.departure_date = CURDATE() AND f.departure_time > CURTIME()))
     ORDER BY f.departure_time ASC
 ";
 
@@ -48,7 +49,7 @@ while ($row = $result->fetch_assoc()) {
     $tiket_aktif[] = [
         'maskapai' => 'FlyNow',
         'rute'     => $row['origin_city'] . ' → ' . $row['dest_city'],
-        'tanggal'  => date('d M Y', strtotime($row['departure_time'])),
+        'tanggal'  => date('d M Y', strtotime($row['departure_date'])),
         'waktu'    => date('H:i', strtotime($row['departure_time'])),
         'status'   => 'Upcoming',
         'id'       => $row['id_transaction']
@@ -64,6 +65,7 @@ $sql_riwayat = "
         t.id_transaction,
         t.booking_code,
         f.flight_code,
+        f.departure_date,
         f.departure_time,
         oa.city AS origin_city,
         da.city AS dest_city
@@ -73,7 +75,7 @@ $sql_riwayat = "
     JOIN airports da ON da.id_airport = f.destination_airport
     WHERE t.user_id = ?
       AND t.payment_status = 'PAID'
-      AND f.departure_time < NOW()
+      AND (f.departure_date >= NOW() OR (f.departure_date = CURDATE() AND f.departure_time > CURTIME()))
     ORDER BY f.departure_time DESC
 ";
 
@@ -86,7 +88,7 @@ while ($row = $result->fetch_assoc()) {
     $riwayat_perjalanan[] = [
         'maskapai' => 'FlyNow',
         'rute'     => $row['origin_city'] . ' → ' . $row['dest_city'],
-        'tanggal'  => date('d M Y', strtotime($row['departure_time'])),
+        'tanggal'  => date('d M Y', strtotime($row['departure_date'])),
         'waktu'    => date('H:i', strtotime($row['departure_time'])),
         'status'   => 'Selesai',
         'id'       => $row['id_transaction']
@@ -113,7 +115,7 @@ $stmt->close();
                             <div class="text-sm font-semibold text-green-600"><?php echo $tiket['status']; ?></div>
                         </div>
                         <div class="mt-4 md:mt-0">
-                            <a href="konfirmasi.php?transaction_id=<?= $tiket['id']; ?>" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700">
+                            <a href="success_payment.php?id=<?= $tiket['id']; ?>" class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700">
                                 View E-Ticket
                             </a>
                         </div>

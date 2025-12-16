@@ -1,5 +1,5 @@
 <?php
-session_start();
+// session_start();
 require_once "../db.php";
 require_once "../akses_admin.php";
 
@@ -139,22 +139,22 @@ $arrival_time = $dep->format("H:i:s");
 $stmt = $conn->prepare("
     INSERT INTO flights 
     (flight_code, airline_id, origin_airport, destination_airport, 
-     price, seat_quota, booked_seats,
+     price, seat_quota,
      departure_date, departure_time, 
      travel_duration,
      arrival_date, arrival_time)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
 $stmt->bind_param(
-    "siiiiisssiss",
+    "siiiiississ",
     $flight_code,
     $airline_id,
     $origin_airport,
     $destination_airport,
     $price,
     $seats,
-    0, // booked_seats awal 0
+    // 0, // booked_seats awal 0
     $departure_date,
     $departure_time,
     $travel_duration,
