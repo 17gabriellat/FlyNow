@@ -69,7 +69,7 @@ session_start();
 
             <div>
                 <button type="submit"
-                    class="w-full bg-blue-600 text-white font-bold text-lg px-6 py-3 rounded-md shadow-lg hover:bg-blue-700">
+                    class="w-full bg-gradient-to-t from-blue-800 to-blue-400 text-white font-bold text-lg px-6 py-3 rounded-md shadow-lg hover:bg-gradient-to-r from-blue-800 to-blue-400">
                     LOGIN
                 </button>
             </div>
