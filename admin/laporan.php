@@ -107,51 +107,40 @@ function getOrdersByRoute($conn, $limit, $offset, $start_date = null, $end_date_
         $types .= 's';
     }
     if ($keyword) {
-        $where .= " AND (f.flight_code LIKE ? OR CONCAT(oa.airport_code, '-', da.airport_code) LIKE ?)";
-        // PERBAIKAN: Masukkan wildcard (%) ke dalam parameter sebelum binding
+        $where .= " AND (f.flight_code LIKE ? 
+                     OR CONCAT(oa.airport_code,'-',da.airport_code) LIKE ?)";
         $params[] = "%$keyword%";
         $params[] = "%$keyword%";
         $types .= 'ss';
     }
-    
-    // Parameter Pagination
+
     $types .= 'ii';
     $params[] = $limit;
     $params[] = $offset;
 
     $sql = "
-        SELECT 
-            oa.airport_code AS origin_airport_code, 
-            da.airport_code AS destination_airport_code, 
-            SUM(t.total_price) AS total_pendapatan,
-            SUM(t.total_passengers) AS total_tiket_terjual,
-            MAX(f.departure_date) AS latest_departure_date 
-        FROM 
-            transactions t
-        JOIN 
-            flights f ON t.departure_flight_id = f.id_flight
-        JOIN 
-            airports oa ON oa.id_airport = f.origin_airport     
-        JOIN 
-            airports da ON da.id_airport = f.destination_airport 
-        WHERE 
-            t.payment_status = 'Paid'
-            " . $where . " 
-        GROUP BY 
-            oa.airport_code, da.airport_code 
-        ORDER BY 
-            total_pendapatan DESC 
+        SELECT
+            oa.airport_code AS origin_airport_code,
+            da.airport_code AS destination_airport_code,
+            SUM(f.booked_seats) AS total_tiket_terjual,
+            SUM(f.booked_seats * f.price) AS total_pendapatan,
+            MAX(f.departure_date) AS latest_departure_date
+        FROM flights f
+        JOIN airports oa ON oa.id_airport = f.origin_airport
+        JOIN airports da ON da.id_airport = f.destination_airport
+        WHERE 1=1
+        $where
+        GROUP BY f.origin_airport, f.destination_airport
+        ORDER BY total_pendapatan DESC
         LIMIT ? OFFSET ?
     ";
 
     $stmt = $conn->prepare($sql);
-    
-    if ($types) {
-        bind_parameters_safely($stmt, $types, $params);
-    }
+    bind_parameters_safely($stmt, $types, $params);
     $stmt->execute();
     return $stmt->get_result();
 }
+
 
 // --- FUNGSI MENGAMBIL DATA AGREGASI PER FLIGHT (DENGAN FILTER) ---
 function getOrdersByFlight($conn, $limit, $offset, $start_date = null, $end_date_sql = null, $keyword = null) {
@@ -170,43 +159,38 @@ function getOrdersByFlight($conn, $limit, $offset, $start_date = null, $end_date
         $types .= 's';
     }
     if ($keyword) {
-        $where .= " AND (f.flight_code LIKE ? OR CONCAT(oa.airport_code, '-', da.airport_code) LIKE ?)";
-        // PERBAIKAN: Masukkan wildcard (%) ke dalam parameter sebelum binding
+        $where .= " AND f.flight_code LIKE ? ";
         $params[] = "%$keyword%";
-        $params[] = "%$keyword%";
-        $types .= 'ss';
+        $types .= 's';
     }
 
-    // Parameter Pagination
     $types .= 'ii';
     $params[] = $limit;
     $params[] = $offset;
 
     $sql = "
-        SELECT 
-            f.id_flight,
+        SELECT
             f.flight_code,
             oa.airport_code AS origin_airport_code,
             da.airport_code AS destination_airport_code,
-            MAX(f.departure_date) AS latest_departure_date,
-            SUM(t.total_passengers) AS total_tiket_terjual,
-            SUM(t.total_price) AS total_pendapatan
-        FROM transactions t
-        JOIN flights f ON t.departure_flight_id = f.id_flight
+            SUM(f.booked_seats) AS total_tiket_terjual,
+            SUM(f.booked_seats * f.price) AS total_pendapatan,
+            MAX(f.departure_date) AS latest_departure_date
+        FROM flights f
         JOIN airports oa ON oa.id_airport = f.origin_airport
         JOIN airports da ON da.id_airport = f.destination_airport
-        WHERE t.payment_status = 'Paid'
+        WHERE 1=1
         $where
-        GROUP BY f.id_flight
+        GROUP BY 
+            f.flight_code,
+            f.origin_airport,
+            f.destination_airport
         ORDER BY total_pendapatan DESC
         LIMIT ? OFFSET ?
     ";
 
     $stmt = $conn->prepare($sql);
-    
-    if ($types) {
-        bind_parameters_safely($stmt, $types, $params);
-    }
+    bind_parameters_safely($stmt, $types, $params);
     $stmt->execute();
     return $stmt->get_result();
 }
@@ -307,7 +291,13 @@ if ($active_tab === 'flight') {
 }
 
 $total_pendapatan_semua = getTotalOrdersRevenue($conn, $start_date, $end_date_sql, $keyword); 
-
+$back_params = http_build_query([
+    'type'       => $active_tab,
+    'start_date' => $start_date ?? '',
+    'end_date'   => $end_date ?? '',
+    'page'       => $page ?? 1,
+    'keyword'    => $keyword ?? ''
+]);
 require_once '../layouts/admin_header.php'; 
 require_once '../layouts/admin_sidebar.php'; 
 ?>
@@ -408,9 +398,9 @@ require_once '../layouts/admin_sidebar.php';
                                 Rp <?= number_format($report['total_pendapatan'],0,',','.') ?>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <a href="detail_penjualan_rute.php?route=<?= urlencode($route_id) ?>&back_params=<?= urlencode("type=route&start_date=$start_date&end_date=$end_date&page=$page&keyword=$keyword") ?>"
+                                <a href="detail_penjualan_rute.php?route=<?= urlencode($route_id) ?>&back_params=<?= urlencode($back_params) ?>"
                                     class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold">
-                                    See Customers
+                                        See Customers
                                 </a>
                             </td>
                         </tr>
@@ -494,10 +484,13 @@ require_once '../layouts/admin_sidebar.php';
                                 Rp <?= number_format($row['total_pendapatan'], 0, ',', '.') ?>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <a href="detail_penjualan_flight.php?id_flight=<?= $row['id_flight'] ?>&back_params=<?= urlencode("type=flight&start_date=$start_date&end_date=$end_date&page=$page&keyword=$keyword") ?>"
-                                    class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold">
-                                    See Customers
-                                </a>
+                                <a href="detail_penjualan_flight.php?flight_code=<?= urlencode($row['flight_code']) ?>&back_params=<?= urlencode($back_params) ?>"
+                            class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold">
+                                See Customers
+                            </a>
+
+
+
                             </td>
                         </tr>
                     <?php endwhile; ?>

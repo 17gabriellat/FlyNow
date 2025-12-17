@@ -12,15 +12,30 @@ function getTotalSalesToday($conn) {
 }
 function getTotalTicketsSoldToday($conn) {
     $today = date('Y-m-d');
-    $sql = "SELECT SUM(total_passengers) AS total_tiket FROM transactions WHERE DATE(created_at) = ?";
-    
+
+    $sql = "
+        SELECT 
+            SUM(
+                total_passengers +
+                CASE 
+                    WHEN return_flight_id IS NOT NULL THEN total_passengers 
+                    ELSE 0 
+                END
+            ) AS total_tiket
+        FROM transactions
+        WHERE DATE(created_at) = ?
+          AND payment_status = 'Paid'
+    ";
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $today);
     $stmt->execute();
+
     $result = $stmt->get_result()->fetch_assoc();
 
-    return $result['total_tiket'] ?? 0;
+    return (int) ($result['total_tiket'] ?? 0);
 }
+
 
 function countTotalUsers($conn) {
     $sql = "SELECT COUNT(*) AS total_users FROM users"; 

@@ -10,7 +10,7 @@ if ($id_flight <= 0) {
 }
 $back_params = $_GET['back_params'] ?? ''; // <--- Tambahkan ini
 $back_url = "laporan.php";
-
+$flight_code = $_GET['flight_code'] ?? '';
 /* =========================
    CONFIG PAGINATION
 ========================= */
