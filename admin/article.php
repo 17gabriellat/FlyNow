@@ -8,7 +8,7 @@ require_once "../backend/admin/article_image.php";
 <main class="flex-1 p-10">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold">Article Management</h1>
-        <a href="article_form.php" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+        <a href="article_form.php" class="bg-gradient-to-t from-blue-800 to-blue-400 text-white px-4 py-2 rounded-md hover:bg-gradient-to-r from-blue-800 to-blue-400">
             + Add New Article
         </a>
     </div>
@@ -161,14 +161,14 @@ require_once "../backend/admin/article_image.php";
                     <button
                         type="button"
                         onclick="window.location.href='article_form.php?id=${a.id_article}'"
-                        class="px-3 py-1 text-sm rounded bg-indigo-600 text-white hover:bg-indigo-700">
+                        class="px-3 py-1 text-sm rounded bg-gradient-to-t from-indigo-800 to-indigo-400 text-white hover:bg-gradient-to-r from-indigo-800 to-indigo-400">
                         Edit
                     </button>
 
                     <button
                         type="button"
                         onclick="openDeleteModal(${a.id_article})"
-                        class="px-3 py-1 text-sm rounded bg-red-600 text-white hover:bg-red-700">
+                        class="px-3 py-1 text-sm rounded bg-gradient-to-t from-red-800 to-red-400 text-white hover:bg-gradient-to-r from-red-500 to-red-400">
                         Delete
                     </button>
 

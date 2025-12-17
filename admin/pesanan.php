@@ -58,7 +58,7 @@ function getPaginationLink($page, $search) {
                 <input type="text" name="search_query" placeholder="Search for Booking Code, Name, or Email..." 
                         class="w-full md:w-1/2 p-2 border rounded-l-md" 
                         value="<?php echo htmlspecialchars($search_query); ?>">
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700">Search</button>
+                <button type="submit" class="bg-gradient-to-t from-blue-800 to-blue-400 text-white px-4 py-2 rounded-r-md hover:bg-gradient-to-l from-blue-800 to-blue-400">Search</button>
                 <a href="pesanan.php" class="text-gray-600 ml-4 self-center hover:underline">Reset</a>
             </div>
         </form>

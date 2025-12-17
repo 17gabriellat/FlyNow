@@ -101,7 +101,7 @@ if ($is_edit) {
 
 
             <div class="mt-6">
-                <button type="submit" class="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700">
+                <button type="submit" class="bg-gradient-to-t from-green-600 to-green-400 text-white px-5 py-2 rounded-md hover:bg-gradient-to-r from-green-600 to-green-400">
                     <?= $is_edit ? 'Update Article' : 'Save Article' ?>
                 </button>
             </div>

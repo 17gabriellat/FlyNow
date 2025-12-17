@@ -85,7 +85,7 @@ if ($transaction_id > 0) {
 
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold"><?php echo $admin_page_title; ?> (ID: <?php echo $transaction_id; ?>)</h1>
-        <a href="pesanan.php" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+        <a href="pesanan.php" class="bg-gradient-to-t from-gray-800 to-gray-400 text-white px-4 py-2 rounded-md hover:bg-gradient-to-r from-gray-800 to-gray-400">
             &larr; Back to Order Management
         </a>
     </div>

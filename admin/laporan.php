@@ -350,17 +350,17 @@ require_once '../layouts/admin_sidebar.php';
                        value="<?= htmlspecialchars($end_date ?? '') ?>">
             </div>
             
-            <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-md self-end">
+            <button type="submit" class="bg-gradient-to-t from-blue-800 to-blue-400 text-white px-5 py-2 rounded-md self-end hover:bg-gradient-to-r from-blue-800 to-blue-400">
                 Show
             </button>
         </form>
 
         <a href="laporan.php?type=<?= htmlspecialchars($active_tab) ?>" 
-           class="bg-gray-400 text-white px-5 py-2 rounded-md self-end hover:bg-gray-500">
+           class="bg-gradient-to-t from-gray-800 to-gray-400 text-white px-5 py-2 rounded-md self-end hover:bg-gradient-to-r from-gray-800 to-gray-400">
             Reset Filter
         </a>
         
-        <button id="export-button" class="bg-green-600 text-white px-5 py-2 rounded-md self-end">
+        <button id="export-button" class="bg-gradient-to-t from-green-800 to-green-400 text-white px-5 py-2 rounded-md self-end hover:bg-gradient-to-r from-green-800 to-green-400">
             Export to Excel
         </button>
     </div>

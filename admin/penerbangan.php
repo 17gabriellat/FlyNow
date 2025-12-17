@@ -155,13 +155,13 @@ $airports2 = $conn->query("SELECT * FROM airports ORDER BY city ASC");
 
             <div class="md:col-span-3 flex gap-2">
                 <button type="submit"
-                    class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
+                    class="w-full bg-gradient-to-t from-blue-800 to-blue-400 text-white px-4 py-4 rounded-md hover:bg-gradient-to-l from-blue-800 to-blue-400 text-sm">
                     Save Flight
                 </button>
 
                 <!-- Tombol Cancel Edit -->
                 <button type="button" id="btn_cancel_edit"
-                    class="w-full bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 text-sm hidden">
+                    class="w-full bg-gradient-to-b from-gray-200 to-gray-400 text-white px-4 py-2 rounded-md hover:bg-gradient-to-l from-gray-500 to-gray-200 text-sm hidden">
                     Cancel Edit
                 </button>
             </div>
@@ -203,10 +203,10 @@ $airports2 = $conn->query("SELECT * FROM airports ORDER BY city ASC");
         <div class="flex items-center gap-3 mb-6 text-sm">
             <label class="font-medium w-32">Filter Date:</label>
             <input type="date" id="filter_date" class="p-2 border rounded-md text-sm">
-            <button id="btn_filter" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
+            <button id="btn_filter" class="px-4 py-2 bg-gradient-to-t from-blue-800 to-blue-400 text-white rounded-md text-sm hover:bg-gradient-to-l from-blue-800 to-blue-400">
                 Filter
             </button>
-            <button id="btn_reset" class="px-4 py-2 bg-gray-500 text-white rounded-md text-sm hover:bg-gray-600">
+            <button id="btn_reset" class="px-4 py-2 bg-gradient-to-t from-gray-800 to-gray-400 text-white rounded-md text-sm hover:bg-gradient-to-l from-gray-800 to-gray-400">
                 Reset
             </button>
         </div>
@@ -325,7 +325,7 @@ $airports2 = $conn->query("SELECT * FROM airports ORDER BY city ASC");
                         let editBtn = `
                 <button ${!canEdit ? "disabled" : `onclick="editFlight(${f.id_flight})"`}
                     class="px-3 py-1 rounded-md text-xs 
-                    ${!canEdit ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"}">
+                    ${!canEdit ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-gradient-to-t from-blue-800 to-blue-400 text-white hover:bg-gradient-to-r from-blue-800 to-blue-400"}">
                     Edit
                 </button>`;
 

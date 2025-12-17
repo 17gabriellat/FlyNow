@@ -58,19 +58,19 @@ require_once "../layouts/admin_sidebar.php";
             </select>
 
             <button onclick="applyFilters()"
-                class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">
+                class="bg-gradient-to-t from-blue-800 to-blue-400 text-white px-4 py-2 rounded-md text-sm hover:bg-gradient-to-r from-blue-800 to-blue-400">
                 Search
             </button>
 
             <button onclick="resetFilters()"
-                class="bg-gray-600 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-700">
+                class="bg-gradient-to-t from-teal-800 to-teal-400 text-white px-4 py-2 rounded-md text-sm hover:bg-gradient-to-r from-teal-800 to-teal-400">
                 Reset
             </button>
         </div>
 
         <!-- RIGHT: Add Button -->
         <button id="showAddFormBtn"
-            class="bg-green-600 text-white px-5 py-2 rounded-md shadow hover:bg-green-700 text-sm">
+            class="bg-gradient-to-t from-green-800 to-green-400 text-white px-5 py-2 rounded-md shadow hover:bg-gradient-to-r from-green-800 to-green-400 text-sm">
             + Add New User
         </button>
     </div>
@@ -264,14 +264,14 @@ require_once "../layouts/admin_sidebar.php";
                 <td class="p-4 flex gap-2">
 
                     <button onclick="openEditForm(${u.id_user})"
-                        class="px-4 py-1 rounded-md text-white"
-                        style="background:#4169E1;">
+                        class="px-4 py-1 rounded-md text-white bg-gradient-to-t from-blue-800 to-blue-400 hover:bg-gradient-to-r from-blue-800 to-blue-400"
+                        >
                         Edit
                     </button>
 
                     <button onclick="deleteUser(${u.id_user})"
-                        class="px-4 py-1 rounded-md text-white"
-                        style="background:#C62828;">
+                        class="px-4 py-1 rounded-md text-white bg-gradient-to-t from-red-800 to-red-400 hover:bg-gradient-to-r from-red-800 to-red-400"
+                        >
                         Delete
                     </button>
 
