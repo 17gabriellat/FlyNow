@@ -58,6 +58,7 @@ $sql = "
       AND f.destination_airport = ?
       AND f.departure_date = ?
       AND f.seat_quota > f.booked_seats
+      AND TIMESTAMP(f.departure_date, f.departure_time) > CONVERT_TZ(NOW(), '+00:00', '+07:00')
     ORDER BY f.departure_time ASC
 ";
 
