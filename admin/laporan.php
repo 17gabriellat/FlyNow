@@ -362,7 +362,7 @@ require_once '../layouts/admin_sidebar.php';
         </a>
         
         <button id="export-button" class="bg-gradient-to-t from-green-800 to-green-400 text-white px-5 py-2 rounded-md self-end hover:bg-gradient-to-r from-green-800 to-green-400">
-            Export to Excel
+            Export to CSV
         </button>
     </div>
 
