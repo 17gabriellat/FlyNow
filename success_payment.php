@@ -194,15 +194,27 @@ $passengers = $passengers->get_result()->fetch_all(MYSQLI_ASSOC);
         </div>
 
         <!-- BUTTONS -->
-        <div class="text-center mt-8 space-x-4">
+        <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
 
             <a href="backend/download_ticket.php?id=<?= $transaction_id ?>"
-               class="bg-gradient-to-t from-gray-600 to-gray-400 text-white px-6 py-3 rounded-md hover:bg-gradient-to-r from-gray-600 to-gray-400">
+            class="flex items-center justify-center
+                    bg-gradient-to-t from-gray-600 to-gray-400
+                    text-white px-6 py-3 rounded-md
+                    hover:bg-gradient-to-r
+                    text-sm sm:text-base
+                    leading-tight break-words
+                    w-full sm:w-auto">
                 Download PDF
             </a>
 
             <a href="index.php"
-               class="bg-gradient-to-t from-blue-600 to-blue-400 text-white px-6 py-3 rounded-md hover:bg-gradient-to-r from-blue-600 to-blue-400">
+            class="flex items-center justify-center
+                    bg-gradient-to-t from-blue-600 to-blue-400
+                    text-white px-6 py-3 rounded-md
+                    hover:bg-gradient-to-r
+                    text-sm sm:text-base
+                    leading-tight break-words
+                    w-full sm:w-auto">
                 Search Another Flight
             </a>
 
