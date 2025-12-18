@@ -264,103 +264,49 @@ file_put_contents(__DIR__."/../debug_email_payload.json", json_encode($emailPayl
 ============================================================= */
 
 // TODO: nanti hidupkan kembali setelah Lambda siap
+require_once __DIR__ . "/../vendor/autoload.php";
 
-function signRequest($method, $service, $region, $host, $uri, $payload, $aws_key, $aws_secret, $aws_token)
-{
-    $t = gmdate("Ymd\THis\Z");
-    $d = gmdate("Ymd");
-
-    $canonical_headers = "content-type:application/x-www-form-urlencoded\nhost:$host\nx-amz-date:$t\nx-amz-security-token:$aws_token\n";
-    $signed_headers = "content-type;host;x-amz-date;x-amz-security-token";
-
-    $hashed_payload = hash("sha256", $payload);
-
-    $canonical_request = "$method\n$uri\n\n$canonical_headers\n$signed_headers\n$hashed_payload";
-    $hashed_canonical_request = hash("sha256", $canonical_request);
-
-    $credential_scope = "$d/$region/$service/aws4_request";
-    $string_to_sign = "AWS4-HMAC-SHA256\n$t\n$credential_scope\n$hashed_canonical_request";
-
-    // signing key
-    $kDate = hash_hmac("sha256", $d, "AWS4" . $aws_secret, true);
-    $kRegion = hash_hmac("sha256", $region, $kDate, true);
-    $kService = hash_hmac("sha256", $service, $kRegion, true);
-    $kSigning = hash_hmac("sha256", "aws4_request", $kService, true);
-
-    $signature = hash_hmac("sha256", $string_to_sign, $kSigning);
-
-    $authorization_header =
-        "AWS4-HMAC-SHA256 Credential=$aws_key/$credential_scope, SignedHeaders=$signed_headers, Signature=$signature";
-
-    return [
-        "x-amz-date" => $t,
-        "x-amz-security-token" => $aws_token,
-        "Authorization" => $authorization_header
-    ];
-}
-
-
+use Aws\Sns\SnsClient;
+use Aws\Exception\AwsException;
 
 $topicArn = getenv("AWS_SNS_TOPIC_ARN_TRANSACTION");
+$region   = getenv("AWS_REGION") ?: "ap-southeast-1";
 
-$region   = getenv("AWS_REGION");
-$service  = getenv("AWS_SNS_SERVICE");
+try {
+    $snsClient = new SnsClient([
+        "version" => "2010-03-31",
+        "region"  => $region,
+        // credentials otomatis:
+        // - dari ENV (local)
+        // - dari IAM Role (EC2)
+    ]);
 
-$messageJson = json_encode($emailPayload);
+    $result = $snsClient->publish([
+        "TopicArn" => $topicArn,
+        "Message"  => json_encode($emailPayload),
+        "MessageAttributes" => [
+            "type" => [
+                "DataType"    => "String",
+                "StringValue" => "transaction"
+            ]
+        ]
+    ]);
 
-$sns_url = "https://$service.$region.amazonaws.com/";
+    // DEBUG (optional)
+    file_put_contents(
+        __DIR__ . "/../sns_debug_response.txt",
+        "MESSAGE_ID:\n" . ($result["MessageId"] ?? "N/A")
+    );
 
-$aws_key    = getenv("AWS_ACCESS_KEY_ID");
-$aws_secret = getenv("AWS_SECRET_ACCESS_KEY");
-$aws_token  = getenv("AWS_SESSION_TOKEN");
+} catch (AwsException $e) {
 
-$host = "$service.$region.amazonaws.com";
-$uri = "/";
+    file_put_contents(
+        __DIR__ . "/../sns_debug_response.txt",
+        "ERROR:\n" . $e->getMessage()
+    );
 
-$messageJson = json_encode($emailPayload);
-
-$payload = http_build_query([
-    "Action" => "Publish",
-    "TopicArn" => $topicArn,
-    "Message" => $messageJson,
-    "Version" => "2010-03-31"
-]);
-
-$headers = signRequest(
-    "POST",
-    $service,
-    $region,
-    $host,
-    $uri,
-    $payload,
-    $aws_key,
-    $aws_secret,
-    $aws_token
-);
-
-$curl = curl_init("https://$host");
-
-curl_setopt($curl, CURLOPT_POST, true);
-curl_setopt($curl, CURLOPT_POSTFIELDS, $payload);
-
-curl_setopt($curl, CURLOPT_HTTPHEADER, [
-    "Content-Type: application/x-www-form-urlencoded",
-    "Host: $host",
-    "X-Amz-Date: {$headers['x-amz-date']}",
-    "X-Amz-Security-Token: $aws_token",
-    "Authorization: {$headers['Authorization']}"
-]);
-
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-
-$response = curl_exec($curl);
-$error = curl_error($curl);
-
-file_put_contents(__DIR__ . "/../sns_debug_response.txt", "RESPONSE:\n$response\nERROR:\n$error");
-
-curl_close($curl);
-
-
+    // optional: jangan gagalkan transaksi
+}
 
 /* =============================================================
    9. ALL DONE → Redirect to success page
