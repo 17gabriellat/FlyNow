@@ -41,36 +41,36 @@ $total_pages = ceil($total / $limit);
 // ================================
 $sql = "
     SELECT
-        t.id_transaction,
-        t.booking_code,
-        f.flight_code,
-        f.departure_date,
-        f.departure_time,
-        f.arrival_date,
-        f.arrival_time,
-        oa.city AS origin_city,
-        da.city AS dest_city,
+    t.id_transaction,
+    t.booking_code,
+    f.flight_code,
+    f.departure_date,
+    f.departure_time,
+    f.arrival_date,
+    f.arrival_time,
+    oa.city AS origin_city,
+    da.city AS dest_city,
 
-        CASE
-            WHEN CONCAT(f.departure_date) > NOW()
-                THEN 'Upcoming'
-            WHEN NOW() BETWEEN
-                CONCAT(f.departure_date,' ',f.departure_time)
-                AND CONCAT(f.arrival_date,' ',f.arrival_time)
-                THEN 'Ongoing'
-            ELSE 'Completed'
-        END AS flight_status
+    CASE
+        WHEN TIMESTAMP(f.departure_date, f.departure_time) > CONVERT_TZ(NOW(), '+00:00', '+07:00')
+            THEN 'Upcoming'
 
-    FROM transactions t
-    JOIN flights f ON f.id_flight = t.departure_flight_id
-    JOIN airports oa ON oa.id_airport = f.origin_airport
-    JOIN airports da ON da.id_airport = f.destination_airport
+        WHEN TIMESTAMP(f.departure_date, f.departure_time) <= CONVERT_TZ(NOW(), '+00:00', '+07:00')
+         AND TIMESTAMP(f.arrival_date, f.arrival_time) > CONVERT_TZ(NOW(), '+00:00', '+07:00')
+            THEN 'Ongoing'
 
-    WHERE t.user_id = ?
-      AND t.payment_status = 'PAID'
+        ELSE 'Completed'
+    END AS flight_status
 
-    ORDER BY f.departure_date ASC, f.departure_time ASC
-    LIMIT ? OFFSET ?
+FROM transactions t
+JOIN flights f ON f.id_flight = t.departure_flight_id
+JOIN airports oa ON oa.id_airport = f.origin_airport
+JOIN airports da ON da.id_airport = f.destination_airport
+WHERE t.user_id = ?
+  AND t.payment_status = 'PAID'
+ORDER BY TIMESTAMP(f.departure_date, f.departure_time) ASC
+LIMIT ? OFFSET ?
+
 ";
 
 $stmt = $conn->prepare($sql);
@@ -92,17 +92,17 @@ $result = $stmt->get_result();
         <?php while ($row = $result->fetch_assoc()): ?>
 
             <?php
-                // Badge color
-                switch ($row['flight_status']) {
-                    case 'Upcoming':
-                        $badge = 'bg-blue-100 text-blue-700';
-                        break;
-                    case 'Ongoing':
-                        $badge = 'bg-yellow-100 text-yellow-700';
-                        break;
-                    default:
-                        $badge = 'bg-green-100 text-green-700';
-                }
+            // Badge color
+            switch ($row['flight_status']) {
+                case 'Upcoming':
+                    $badge = 'bg-blue-100 text-blue-700';
+                    break;
+                case 'Ongoing':
+                    $badge = 'bg-yellow-100 text-yellow-700';
+                    break;
+                default:
+                    $badge = 'bg-green-100 text-green-700';
+            }
             ?>
 
             <div class="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row justify-between items-center
@@ -133,7 +133,7 @@ $result = $stmt->get_result();
 
                 <div class="mt-4 md:mt-0">
                     <a href="success_payment.php?id=<?= $row['id_transaction'] ?>"
-                       class="bg-gradient-to-t from-blue-500 to-blue-300 
+                        class="bg-gradient-to-t from-blue-500 to-blue-300 
                             text-white px-5 py-2 rounded-md 
                             shadow-lg hover:shadow-2xl
                             transition-all duration-300 ease-in-out
@@ -150,18 +150,48 @@ $result = $stmt->get_result();
 
     <!-- PAGINATION -->
     <?php if ($total_pages > 1): ?>
-        <div class="flex justify-center mt-10 gap-2">
+        <div class="flex items-center justify-end mt-10 gap-2">
 
-            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+            <!-- PREV -->
+            <?php if ($page > 1): ?>
+                <a href="?page=<?= $page - 1 ?>"
+                    class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-sm">
+                    Prev
+                </a>
+            <?php else: ?>
+                <span class="px-4 py-2 rounded-md bg-gray-100 text-gray-400 text-sm">
+                    Prev
+                </span>
+            <?php endif; ?>
+
+            <?php
+            $start = max(1, $page - 1);
+            $end   = min($total_pages, $page + 1);
+            ?>
+
+            <?php for ($i = $start; $i <= $end; $i++): ?>
                 <a href="?page=<?= $i ?>"
-                   class="px-4 py-2 rounded-md text-sm
-                   <?= $i == $page ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300' ?>">
+                    class="px-4 py-2 rounded-md text-sm
+               <?= $i == $page ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300' ?>">
                     <?= $i ?>
                 </a>
             <?php endfor; ?>
 
+            <!-- NEXT -->
+            <?php if ($page < $total_pages): ?>
+                <a href="?page=<?= $page + 1 ?>"
+                    class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-sm">
+                    Next
+                </a>
+            <?php else: ?>
+                <span class="px-4 py-2 rounded-md bg-gray-100 text-gray-400 text-sm">
+                    Next
+                </span>
+            <?php endif; ?>
+
         </div>
     <?php endif; ?>
+
 
 </div>
 
