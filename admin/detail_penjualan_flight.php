@@ -67,6 +67,7 @@ $data_sql = "
         u.email,
         t.total_passengers,
         t.total_price,
+        t.booking_code,
         t.created_at
     FROM transactions t
     JOIN users u ON u.id_user = t.user_id
@@ -124,8 +125,8 @@ require_once "../layouts/admin_sidebar.php";
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code Booking</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Passengers</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Price</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction Date</th>
@@ -135,8 +136,11 @@ require_once "../layouts/admin_sidebar.php";
                 <?php if ($customers->num_rows > 0): ?>
                     <?php while ($row = $customers->fetch_assoc()): ?>
                         <tr>
-                            <td class="px-6 py-4"><?= htmlspecialchars($row['name']) ?></td>
-                            <td class="px-6 py-4"><?= htmlspecialchars($row['email']) ?></td>
+                            <td class="px-6 py-4 font-medium text-gray-900"><?= htmlspecialchars($row['booking_code']) ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                <strong><?php echo htmlspecialchars($row['name']); ?></strong><br>
+                                <span class="text-xs text-gray-500"><?php echo htmlspecialchars($row['email']); ?></span>
+                            </td>
                             <td class="px-6 py-4"><?= number_format($row['total_passengers']) ?></td>
                             <td class="px-6 py-4">
                                 Rp <?= number_format($row['total_price'], 0, ',', '.') ?>
@@ -149,7 +153,7 @@ require_once "../layouts/admin_sidebar.php";
                 <?php else: ?>
                     <tr>
                         <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                            No customer data found.
+                            No transaction data found.
                         </td>
                     </tr>
                 <?php endif; ?>
@@ -161,7 +165,7 @@ require_once "../layouts/admin_sidebar.php";
     <div class="mt-6 flex justify-between items-center">
         <p class="text-sm text-gray-600">
             Showing <?= $offset + 1 ?> to <?= min($offset + $limit, $total_rows) ?>
-            of <?= $total_rows ?> customers
+            of <?= $total_rows ?> transactions
         </p>
 
         <nav class="inline-flex rounded-md shadow-sm -space-x-px">

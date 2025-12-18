@@ -22,7 +22,7 @@ list($origin_code, $dest_code) = explode('-', $route_id);
 $admin_page_title = "Route Sales Details: $origin_code &rarr; $dest_code";
 
 // --- KONFIGURASI PAGINATION DETAIL ---
-$limit = 15; // Jumlah transaksi per halaman detail
+$limit = 10; // Jumlah transaksi per halaman detail
 $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($page < 1) $page = 1;
 $offset = ($page - 1) * $limit;
@@ -35,21 +35,24 @@ $query_base = "
     FROM transactions t
     JOIN users u ON u.id_user = t.user_id
     JOIN flights f ON f.id_flight = t.departure_flight_id
+    LEFT JOIN flights f2 ON f2.id_flight = t.return_flight_id
     JOIN airports oa ON oa.id_airport = f.origin_airport
+    LEFT JOIN airports oa2 ON oa2.id_airport = f2.origin_airport
+    LEFT JOIN airports da2 ON da2.id_airport = f2.destination_airport
     JOIN airports da ON da.id_airport = f.destination_airport
-    WHERE oa.airport_code = ? AND da.airport_code = ? AND t.payment_status = 'Paid'
+    WHERE ((oa.airport_code = ? AND da.airport_code = ?) OR (oa2.airport_code = ? AND da2.airport_code = ?)) AND t.payment_status = 'Paid' 
 ";
 
 // Data yang ingin diambil
 $select_data = "
     SELECT 
-        t.id_transaction, t.booking_code, t.total_price, t.created_at,
+        t.id_transaction, t.booking_code, t.total_price, t.created_at, t.total_passengers,
         u.name AS customer_name, u.email AS customer_email,
         f.departure_date, f.departure_time 
 ";
 
-$params = [$origin_code, $dest_code];
-$types = 'ss'; 
+$params = [$origin_code, $dest_code, $origin_code, $dest_code];
+$types = 'ssss'; 
 
 // 1. Ambil Total Baris
 $sql_count = "SELECT COUNT(t.id_transaction) AS total_rows " . $query_base;
@@ -107,6 +110,7 @@ require_once '../layouts/admin_sidebar.php';
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Code Booking</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Flight Date</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Buyer Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Passengers</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total price</th>
                 </tr>
             </thead>
@@ -121,6 +125,7 @@ require_once '../layouts/admin_sidebar.php';
                                 <strong><?php echo htmlspecialchars($buyer['customer_name']); ?></strong><br>
                                 <span class="text-xs text-gray-500"><?php echo htmlspecialchars($buyer['customer_email']); ?></span>
                             </td>
+                            <td class="px-6 py-4 text-sm text-gray-900"><?php echo number_format($buyer['total_passengers']); ?></td>
                             <td class="px-6 py-4 text-sm font-semibold text-right">Rp <?php echo number_format($buyer['total_price'], 0, ',', '.'); ?></td>
                         </tr>
                     <?php endwhile; ?>
@@ -134,29 +139,35 @@ require_once '../layouts/admin_sidebar.php';
     </div>
 
     <?php if ($total_pages >= 1): ?>
-    <div class="mt-4 flex justify-center">
-        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-            <?php 
-            $route_param = urlencode($route_id);
-            
-            // Perlu menambahkan parameter back_params ke tautan pagination
-            $pagination_base_url = "?route=$route_param&back_params=" . urlencode($back_params);
+    <?php
+        $route_param = urlencode($route_id);
+        $encoded_back = urlencode($back_params);
+        $pagination_base = "?route={$route_param}&back_params={$encoded_back}";
+    ?>
 
-            $prev_page = $page > 1 ? $page - 1 : 1;
-            $prev_class = $page > 1 ? 'hover:bg-gray-50' : 'bg-gray-100 text-gray-400 cursor-default';
-            $prev_link = $pagination_base_url . "&page=$prev_page";
-            echo '<a href="' . $prev_link . '" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 ' . $prev_class . '">Previous</a>';
+    <div class="mt-6 flex justify-between items-center">
+        <p class="text-sm text-gray-600">
+            Showing <?= $offset + 1 ?> to <?= min($offset + $limit, $total_rows) ?>
+            of <?= $total_rows ?> transactions
+        </p>
 
-            for ($i = 1; $i <= $total_pages; $i++) {
-                $active_class = ($i == $page) ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50';
-                echo '<a href="' . $pagination_base_url . '&page=' . $i . '" class="relative inline-flex items-center px-4 py-2 border text-sm font-medium ' . $active_class . '">' . $i . '</a>';
-            }
+        <nav class="inline-flex rounded-md shadow-sm -space-x-px">
+            <?php if ($page > 1): ?>
+                <a href="<?= $pagination_base ?>&page=<?= $page - 1 ?>"
+                   class="px-3 py-2 border bg-white text-sm hover:bg-gray-50">Previous</a>
+            <?php endif; ?>
 
-            $next_page = $page < $total_pages ? $page + 1 : $total_pages;
-            $next_class = $page < $total_pages ? 'hover:bg-gray-50' : 'bg-gray-100 text-gray-400 cursor-default';
-            $next_link = $pagination_base_url . "&page=$next_page";
-            echo '<a href="' . $next_link . '" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 ' . $next_class . '">Next</a>';
-            ?>
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <a href="<?= $pagination_base ?>&page=<?= $i ?>"
+                   class="px-4 py-2 border text-sm <?= $i == $page ? 'bg-blue-50 text-blue-600 border-blue-500' : 'bg-white hover:bg-gray-50' ?>">
+                    <?= $i ?>
+                </a>
+            <?php endfor; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <a href="<?= $pagination_base ?>&page=<?= $page + 1 ?>"
+                   class="px-3 py-2 border bg-white text-sm hover:bg-gray-50">Next</a>
+            <?php endif; ?>
         </nav>
     </div>
     <?php endif; ?>

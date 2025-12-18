@@ -170,6 +170,7 @@ function getOrdersByFlight($conn, $limit, $offset, $start_date = null, $end_date
 
     $sql = "
         SELECT
+            f.id_flight,
             f.flight_code,
             oa.airport_code AS origin_airport_code,
             da.airport_code AS destination_airport_code,
@@ -484,7 +485,7 @@ require_once '../layouts/admin_sidebar.php';
                                 Rp <?= number_format($row['total_pendapatan'], 0, ',', '.') ?>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <a href="detail_penjualan_flight.php?flight_code=<?= urlencode($row['flight_code']) ?>&back_params=<?= urlencode($back_params) ?>"
+                                <a href="detail_penjualan_flight.php?id_flight=<?= urlencode($row['id_flight']) ?>&back_params=<?= urlencode($back_params) ?>"
                             class="text-indigo-600 hover:text-indigo-900 text-sm font-semibold">
                                 See Customers
                             </a>
