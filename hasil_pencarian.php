@@ -30,14 +30,9 @@ foreach (array_merge($oneWayFlights, $returnFlights) as $f) {
     }
 }
 
-// foreach ($returnFlights as $f) {
-//     if (!empty($f['airline_code']) && !array_key_exists($f['airline_code'], $airlines)) {
-//         $airlines[$f['airline_code']] = $f['airline_name'];
-//     }
-// }
 ?>
 
-<div class="container mx-auto px-6 py-8">
+<div class="container mx-auto px-6 py-8 min-h-screen">
 
     <!-- HEADER SEARCH RESULT -->
     <div class="bg-white p-6 rounded-lg shadow-md mb-6">

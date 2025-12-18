@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <button type="submit"
-                        class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-bold">
+                        class="w-auto bg-gradient-to-t from-blue-600 to-blue-400 text-white font-bold px-6 py-3 rounded-md shadow-lg hover:bg-gradient-to-r from-blue-600 to-blue-400">
                         Save Changes
                     </button>
                 </form>

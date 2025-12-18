@@ -3,7 +3,7 @@ $page_title = 'FLYNOW - Book Your Flight';
 require_once 'layouts/header.php';
 ?>
 
-<header class="bg-blue-600 text-white">
+<header class="bg-gradient-to-t from-blue-600 to-blue-400 text-white">
 
     <!-- ALERT ERROR -->
     <?php if (isset($_SESSION['error'])): ?>
@@ -17,8 +17,8 @@ require_once 'layouts/header.php';
         </div>
     <?php unset($_SESSION['error']);
     endif; ?>
-
-    <div class="container mx-auto px-6 py-20 text-center">
+ 
+    <div class="container mx-auto px-6 py-20 text-center ">
 
         <h1 class="text-4xl font-bold mb-4">Find Your Best Flight</h1>
         <p class="text-lg mb-8">Search and book flights easily to anywhere in the world.</p>
@@ -91,7 +91,7 @@ require_once 'layouts/header.php';
                 <!-- BUTTON -->
                 <div class="lg:col-span-4 mt-4">
                     <button type="submit"
-                        class="w-full bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold text-lg px-6 py-4 rounded-md shadow-lg">
+                        class="w-full bg-gradient-to-t from-yellow-600 to-yellow-300 hover:bg-gradient-to-r from-yellow-600 to-yellow-300 text-blue-900 font-bold text-lg px-6 py-4 rounded-md shadow-lg">
                         SEARCH FLIGHTS
                     </button>
                 </div>
@@ -109,8 +109,8 @@ require_once 'layouts/header.php';
     </h2>
 
     <div id="articleContainer"
-        class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="col-span-3 text-center text-gray-500">
+        class="grid grid-cols-1 md:grid-cols-3 gap-8 ">
+        <div class="col-span-3 text-center text-gray-500 ">
             Loading articles...
         </div>
     </div>
@@ -212,13 +212,15 @@ require_once 'layouts/header.php';
 
             res.forEach(a => {
                 container.append(`
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden shadow-lg hover:shadow-2xl
+            transition-all duration-300 ease-in-out
+            transform hover:-translate-y-1 hover:scale-80">
                     ${a.image_url ? `
                         <img src="${a.image_url}"
                              class="w-full h-48 object-cover">
                     ` : ``}
 
-                    <div class="p-6">
+                    <div class="p-6 ">
                         <h3 class="text-xl font-bold mb-2">
                             ${a.title}
                         </h3>

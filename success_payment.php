@@ -118,7 +118,7 @@ $passengers = $passengers->get_result()->fetch_all(MYSQLI_ASSOC);
         </div>
 
         <div class="bg-white rounded-lg shadow-xl overflow-hidden">
-            <div class="bg-blue-600 text-white p-6">
+            <div class="bg-gradient-to-t from-blue-400 to-blue-600 text-white p-6">
                 <h2 class="text-2xl font-bold">Flight E-Ticket</h2>
             </div>
 
@@ -197,12 +197,12 @@ $passengers = $passengers->get_result()->fetch_all(MYSQLI_ASSOC);
         <div class="text-center mt-8 space-x-4">
 
             <a href="backend/download_ticket.php?id=<?= $transaction_id ?>"
-               class="bg-gray-700 text-white px-6 py-3 rounded-md hover:bg-gray-800">
+               class="bg-gradient-to-t from-gray-600 to-gray-400 text-white px-6 py-3 rounded-md hover:bg-gradient-to-r from-gray-600 to-gray-400">
                 Download PDF
             </a>
 
             <a href="index.php"
-               class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700">
+               class="bg-gradient-to-t from-blue-600 to-blue-400 text-white px-6 py-3 rounded-md hover:bg-gradient-to-r from-blue-600 to-blue-400">
                 Search Another Flight
             </a>
 

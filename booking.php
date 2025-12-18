@@ -123,7 +123,7 @@ $returnPrice = $return_flight ? $return_flight['price'] : 0;
                     <h2 class="text-xl font-semibold">Passenger Details</h2>
 
                     <button type="button" id="addPassengerBtn"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-md shadow hover:bg-blue-700">
+                        class="bg-gradient-to-t from-blue-600 to-blue-400 text-white px-4 py-2 rounded-md shadow hover:bg-gradient-to-r from-blue-600 to-blue-400">
                         + Add Passenger
                     </button>
                 </div>
@@ -200,7 +200,7 @@ $returnPrice = $return_flight ? $return_flight['price'] : 0;
                 </div>
 
                 <button type="submit"
-                    class="w-full bg-blue-600 text-white font-bold text-lg px-6 py-3 rounded-md shadow-lg hover:bg-blue-700 mt-6">
+                    class="w-full bg-gradient-to-t from-blue-600 to-blue-400 text-white font-bold text-lg px-6 py-3 rounded-md shadow-lg hover:bg-gradient-to-r from-blue-600 to-blue-400 mt-6">
                     PAY NOW
                 </button>
 

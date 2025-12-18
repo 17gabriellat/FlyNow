@@ -31,7 +31,7 @@
         </div>
         <div class="text-sm text-gray-600 mb-2">/seat</div>
 
-        <button class="choose-flight bg-blue-600 text-white px-6 py-2 rounded-md"
+        <button class="choose-flight bg-gradient-to-t from-blue-600 to-blue-400 text-white px-6 py-2 rounded-md hover:bg-gradient-to-r from-blue-600 to-blue-400"
             data-flight-id="<?= $flight['id_flight'] ?>"
             data-type="<?= $flight_type ?>">
             Choose

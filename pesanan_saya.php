@@ -79,7 +79,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 ?>
 
-<div class="container mx-auto px-6 py-8">
+<div class="container mx-auto px-6 py-8 ">
 
     <h1 class="text-3xl font-bold mb-8">My Orders</h1>
 
@@ -105,7 +105,11 @@ $result = $stmt->get_result();
                 }
             ?>
 
-            <div class="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row justify-between items-center">
+            <div class="bg-white rounded-lg shadow-md p-6 flex flex-col md:flex-row justify-between items-center
+                shadow-lg hover:shadow-2xl
+            transition-all duration-300 ease-in-out
+            transform hover:-translate-y-1 hover:scale-80
+            ">
 
                 <div>
                     <div class="text-sm text-gray-500">FLYNOW</div>
@@ -129,7 +133,11 @@ $result = $stmt->get_result();
 
                 <div class="mt-4 md:mt-0">
                     <a href="success_payment.php?id=<?= $row['id_transaction'] ?>"
-                       class="bg-blue-600 text-white px-5 py-2 rounded-md hover:bg-blue-700">
+                       class="bg-gradient-to-t from-blue-500 to-blue-300 
+                            text-white px-5 py-2 rounded-md 
+                            shadow-lg hover:shadow-2xl
+                            transition-all duration-300 ease-in-out
+                            transform hover:-translate-y-1 hover:scale-105">
                         View E-Ticket
                     </a>
                 </div>

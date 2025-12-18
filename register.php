@@ -13,7 +13,7 @@ session_start();
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
-<body class="bg-gray-100 flex items-center justify-center min-h-screen py-10">
+<body class="bg-gradient-to-t from-blue-200 to-gray-100 flex items-center justify-center min-h-screen py-10">
 
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
         <div class="text-center mb-8">

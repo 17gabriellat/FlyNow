@@ -48,7 +48,7 @@ session_start();
             <input type="email" name="email" required
                 class="w-full p-3 border rounded mb-4">
 
-            <button class="w-full bg-blue-600 text-white py-3 rounded">
+            <button class="w-full bg-gradient-to-t from-blue-600 to-blue-400 text-white py-3 rounded hover:bg-gradient-to-r from-blue-600 to-blue-400">
                 Verify Email
             </button>
         </form>
