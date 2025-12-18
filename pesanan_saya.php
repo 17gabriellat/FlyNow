@@ -132,7 +132,7 @@ $result = $stmt->get_result();
                 </div>
 
                 <div class="mt-4 md:mt-0">
-                    <a href="success_payment.php?id=<?= $row['id_transaction'] ?>"
+                    <a href="view_ticket.php?id=<?= $row['id_transaction'] ?>"
                        class="bg-gradient-to-t from-blue-500 to-blue-300 
                             text-white px-5 py-2 rounded-md 
                             shadow-lg hover:shadow-2xl
