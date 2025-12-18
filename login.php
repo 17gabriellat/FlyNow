@@ -18,10 +18,10 @@ session_start();
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
         <div class="text-center mb-8">
             <a href="index.php" class="text-3xl font-bold text-blue-600">FLYNOW</a>
-            <h2 class="text-2xl font-semibold text-gray-800 mt-2">Selamat Datang Kembali</h2>
-            <p class="text-gray-600">Silakan login ke akun Anda.</p>
+            <h2 class="text-2xl font-semibold text-gray-800 mt-2">Welcome Back</h2>
+            <p class="text-gray-600">Please log in to your account.</p>
 
-            <!-- ALERT ERROR -->
+            <!-- ERROR ALERT -->
             <?php if (isset($_SESSION['error'])): ?>
                 <div id="alert-error"
                     class="my-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg shadow">
@@ -30,10 +30,9 @@ session_start();
                         <button onclick="$('#alert-error').fadeOut();" class="text-red-600 font-bold text-xl">&times;</button>
                     </div>
                 </div>
-            <?php unset($_SESSION['error']);
-            endif; ?>
+            <?php unset($_SESSION['error']); endif; ?>
 
-            <!-- ALERT SUCCESS -->
+            <!-- SUCCESS ALERT -->
             <?php if (isset($_SESSION['success'])): ?>
                 <div id="alert-success"
                     class="my-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg shadow">
@@ -42,16 +41,15 @@ session_start();
                         <button onclick="$('#alert-success').fadeOut();" class="text-green-700 font-bold text-xl">&times;</button>
                     </div>
                 </div>
-            <?php unset($_SESSION['success']);
-            endif; ?>
+            <?php unset($_SESSION['success']); endif; ?>
         </div>
 
         <form action="backend/login_process.php" method="POST" class="space-y-6">
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
                 <input type="email" id="email" name="email" required
                     class="mt-1 w-full p-3 border border-gray-300 rounded-md"
-                    placeholder="anda@email.com">
+                    placeholder="you@email.com">
             </div>
 
             <div>
@@ -64,7 +62,9 @@ session_start();
             <div class="flex items-center justify-between">
                 <label class="flex items-center space-x-2">
                 </label>
-                <a href="forgot_password.php" class="text-sm text-blue-600 hover:underline">Forgot your password?</a>
+                <a href="forgot_password.php" class="text-sm text-blue-600 hover:underline">
+                    Forgot your password?
+                </a>
             </div>
 
             <div>
@@ -77,13 +77,16 @@ session_start();
 
         <div class="text-center mt-6">
             <p class="text-sm text-gray-600">
-                Belum punya akun?
-                <a href="register.php" class="text-blue-600 font-medium hover:underline">Daftar di sini</a>
+                Don’t have an account?
+                <a href="register.php" class="text-blue-600 font-medium hover:underline">
+                    Register here
+                </a>
             </p>
         </div>
     </div>
 
 </body>
+
 
 </html>
 
