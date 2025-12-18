@@ -2,7 +2,6 @@
 session_start();
 
 require_once "../db.php";
-require_once "../aws_config.php";
 require_once "../s3_put_object.php";
 require_once "../akses_admin.php";
 
@@ -27,14 +26,9 @@ $delete_image  = isset($_POST['delete_image']);
 
 if ($title === '' || $content === '') {
     $_SESSION['error'] = "Title and content are required.";
-    header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=".$article_id : ""));
+    header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=" . $article_id : ""));
     exit;
 }
-
-// ===============================
-// AWS CONFIG
-// ===============================
-$aws = require "../aws_config.php";
 
 // ===============================
 // IMAGE HANDLING
@@ -51,13 +45,13 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE)
 
     if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
         $_SESSION['error'] = "Image upload failed.";
-        header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=".$article_id : ""));
+        header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=" . $article_id : ""));
         exit;
     }
 
     if ($_FILES['image']['size'] > 5 * 1024 * 1024) {
         $_SESSION['error'] = "Image size must be under 5MB.";
-        header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=".$article_id : ""));
+        header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=" . $article_id : ""));
         exit;
     }
 
@@ -75,7 +69,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE)
 
     if (!isset($allowed[$mime])) {
         $_SESSION['error'] = "Only JPG, PNG, or WEBP images are allowed.";
-        header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=".$article_id : ""));
+        header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=" . $article_id : ""));
         exit;
     }
 
@@ -86,8 +80,8 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE)
 
     $imageKey = "articles/{$date}/user_{$user_id}/{$random}.{$ext}";
 
+    // ✅ SESUAIKAN PEMANGGILAN FUNGSI
     $upload = s3_put_object(
-        $aws,
         $imageKey,
         $tmpPath,
         $mime
@@ -100,7 +94,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE)
         );
 
         $_SESSION['error'] = "Failed to upload image to S3.";
-        header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=".$article_id : ""));
+        header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=" . $article_id : ""));
         exit;
     }
 }
@@ -142,7 +136,7 @@ if ($is_edit) {
 
 if (!$stmt->execute()) {
     $_SESSION['error'] = "Database error: " . $stmt->error;
-    header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=".$article_id : ""));
+    header("Location: ../../admin/article_form.php" . ($is_edit ? "?id=" . $article_id : ""));
     exit;
 }
 
