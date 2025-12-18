@@ -1,121 +1,65 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
 
-function s3_put_object(array $aws, string $key, string $filePath, string $contentType): array
+use Aws\S3\S3Client;
+use Aws\Exception\AwsException;
+
+/**
+ * Upload file ke AWS S3
+ * Pakai IAM Role EC2 (tanpa Access Key manual)
+ */
+function s3_put_object(string $key, string $filePath, string $contentType): array
 {
-    $region = $aws["region"];
-    $bucket = $aws["bucket"];
-    $accessKey = $aws["access_key"];
-    $secretKey = $aws["secret_key"];
-    $sessionToken = $aws["session_token"];
+    $bucket = getenv("AWS_S3_BUCKET");
 
-    if (!$region || !$bucket || !$accessKey || !$secretKey || !$sessionToken) {
-        return ["ok" => false, "error" => "AWS credentials or bucket config is missing."];
-    }
-
-    if (!file_exists($filePath)) {
-        return ["ok" => false, "error" => "File not found."];
-    }
-
-    $fileBody = file_get_contents($filePath);
-    if ($fileBody === false) {
-        return ["ok" => false, "error" => "Failed to read file."];
-    }
-
-    $service = "s3";
-    $host = "{$bucket}.s3.{$region}.amazonaws.com";
-
-    $amzDate = gmdate("Ymd\THis\Z");
-    $dateStamp = gmdate("Ymd");
-
-    $payloadHash = hash("sha256", $fileBody);
-
-    $encodedKey = implode("/", array_map("rawurlencode", explode("/", $key)));
-    $canonicalUri = "/" . $encodedKey;
-
-    $canonicalQueryString = "";
-
-    $canonicalHeaders =
-        "content-type:" . $contentType . "\n" .
-        "host:" . $host . "\n" .
-        "x-amz-content-sha256:" . $payloadHash . "\n" .
-        "x-amz-date:" . $amzDate . "\n" .
-        "x-amz-security-token:" . $sessionToken . "\n";
-
-    $signedHeaders = "content-type;host;x-amz-content-sha256;x-amz-date;x-amz-security-token";
-
-    $canonicalRequest =
-        "PUT\n" .
-        $canonicalUri . "\n" .
-        $canonicalQueryString . "\n" .
-        $canonicalHeaders . "\n" .
-        $signedHeaders . "\n" .
-        $payloadHash;
-
-    $algorithm = "AWS4-HMAC-SHA256";
-    $credentialScope = $dateStamp . "/" . $region . "/" . $service . "/aws4_request";
-    $stringToSign =
-        $algorithm . "\n" .
-        $amzDate . "\n" .
-        $credentialScope . "\n" .
-        hash("sha256", $canonicalRequest);
-
-    $signingKey = getSignatureKey($secretKey, $dateStamp, $region, $service);
-    $signature = hash_hmac("sha256", $stringToSign, $signingKey);
-
-    $authorizationHeader =
-        $algorithm .
-        " Credential=" . $accessKey . "/" . $credentialScope .
-        ", SignedHeaders=" . $signedHeaders .
-        ", Signature=" . $signature;
-
-    $url = "https://" . $host . $canonicalUri;
-
-    $headers = [
-        "Content-Type: " . $contentType,
-        "Host: " . $host,
-        "X-Amz-Date: " . $amzDate,
-        "X-Amz-Content-Sha256: " . $payloadHash,
-        "X-Amz-Security-Token: " . $sessionToken,
-        "Authorization: " . $authorizationHeader,
-    ];
-
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $fileBody);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    $responseBody = curl_exec($ch);
-    $curlErr = curl_error($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-    curl_close($ch);
-
-    if ($curlErr) {
-        return ["ok" => false, "error" => "cURL error: " . $curlErr];
-    }
-
-    if ($httpCode >= 200 && $httpCode < 300) {
+    if (!$bucket) {
         return [
-            "ok" => true,
-            "key" => $key,
-            "url" => "https://" . $host . "/" . $encodedKey,
-            "http" => $httpCode
+            "ok" => false,
+            "error" => "AWS_S3_BUCKET belum diset"
         ];
     }
 
-    return [
-        "ok" => false,
-        "error" => "S3 upload failed",
-        "http" => $httpCode,
-        "response" => $responseBody
-    ];
-}
+    if (!file_exists($filePath)) {
+        return [
+            "ok" => false,
+            "error" => "File tidak ditemukan"
+        ];
+    }
 
-function getSignatureKey(string $key, string $dateStamp, string $regionName, string $serviceName)
-{
-    $kDate = hash_hmac("sha256", $dateStamp, "AWS4" . $key, true);
-    $kRegion = hash_hmac("sha256", $regionName, $kDate, true);
-    $kService = hash_hmac("sha256", $serviceName, $kRegion, true);
-    return hash_hmac("sha256", "aws4_request", $kService, true);
+    // S3 Client TANPA credentials → pakai IAM Role EC2
+    $s3 = new S3Client([
+        'version' => 'latest'
+    ]);
+
+    try {
+        $result = $s3->putObject([
+            'Bucket'      => $bucket,
+            'Key'         => $key,
+            'SourceFile'  => $filePath,
+            'ContentType' => $contentType,
+            'ACL'         => 'public-read', // hapus kalau bucket private
+        ]);
+
+        return [
+            "ok"  => true,
+            "key" => $key,
+            "url" => $result['ObjectURL']
+        ];
+
+    } catch (AwsException $e) {
+
+        // Debug log (konsisten dengan SNS)
+        file_put_contents(
+            __DIR__ . "/s3_upload_debug.txt",
+            date('Y-m-d H:i:s') . "\n" .
+            "ERROR: " . $e->getAwsErrorMessage() . "\n" .
+            "CODE : " . $e->getAwsErrorCode() . "\n\n",
+            FILE_APPEND
+        );
+
+        return [
+            "ok"    => false,
+            "error" => "S3 upload failed: " . $e->getAwsErrorMessage()
+        ];
+    }
 }
