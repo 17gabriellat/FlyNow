@@ -6,29 +6,33 @@ use Aws\Exception\AwsException;
 
 /**
  * Upload file ke AWS S3
- * Pakai IAM Role EC2 (tanpa Access Key manual)
+ * - Local: pakai env
+ * - EC2: pakai IAM Role
  */
 function s3_put_object(string $key, string $filePath, string $contentType): array
 {
-    $bucket = getenv("AWS_S3_BUCKET");
+    $bucket = getenv("AWS_BUCKET_NAME");
+    $region = getenv("AWS_REGION") ?: 'us-east-1';
 
     if (!$bucket) {
         return [
             "ok" => false,
-            "error" => "AWS_S3_BUCKET belum diset"
+            "error" => "AWS_BUCKET_NAME belum diset"
         ];
     }
 
     if (!file_exists($filePath)) {
         return [
             "ok" => false,
-            "error" => "File tidak ditemukan"
+            "error" => "File tidak ditemukan: $filePath"
         ];
     }
 
-    // S3 Client TANPA credentials → pakai IAM Role EC2
+    // ✅ REGION WAJIB ADA
     $s3 = new S3Client([
-        'version' => 'latest'
+        'version' => 'latest',
+        'region'  => $region
+        // ❗ credentials TIDAK PERLU → IAM Role EC2 otomatis
     ]);
 
     try {
@@ -36,8 +40,8 @@ function s3_put_object(string $key, string $filePath, string $contentType): arra
             'Bucket'      => $bucket,
             'Key'         => $key,
             'SourceFile'  => $filePath,
-            'ContentType' => $contentType,
-            'ACL'         => 'public-read', // hapus kalau bucket private
+            'ContentType' => $contentType
+            // ❌ JANGAN pakai ACL dulu
         ]);
 
         return [
@@ -48,18 +52,18 @@ function s3_put_object(string $key, string $filePath, string $contentType): arra
 
     } catch (AwsException $e) {
 
-        // Debug log (konsisten dengan SNS)
         file_put_contents(
             __DIR__ . "/s3_upload_debug.txt",
             date('Y-m-d H:i:s') . "\n" .
-            "ERROR: " . $e->getAwsErrorMessage() . "\n" .
-            "CODE : " . $e->getAwsErrorCode() . "\n\n",
+            "MESSAGE: " . $e->getMessage() . "\n" .
+            "AWS ERROR: " . $e->getAwsErrorMessage() . "\n" .
+            "CODE: " . $e->getAwsErrorCode() . "\n\n",
             FILE_APPEND
         );
 
         return [
-            "ok"    => false,
-            "error" => "S3 upload failed: " . $e->getAwsErrorMessage()
+            "ok" => false,
+            "error" => $e->getAwsErrorMessage()
         ];
     }
 }
