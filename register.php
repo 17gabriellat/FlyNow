@@ -8,7 +8,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Akun - FLYNOW</title>
+    <title>Create Account - FLYNOW</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
@@ -18,10 +18,10 @@ session_start();
     <div class="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
         <div class="text-center mb-8">
             <a href="index.php" class="text-3xl font-bold text-blue-600">FLYNOW</a>
-            <h2 class="text-2xl font-semibold text-gray-800 mt-2">Buat Akun Baru</h2>
-            <p class="text-gray-600">Daftar gratis untuk mulai memesan tiket.</p>
+            <h2 class="text-2xl font-semibold text-gray-800 mt-2">Create New Account</h2>
+            <p class="text-gray-600">Sign up for free to start booking tickets.</p>
 
-            <!-- ALERT ERROR -->
+            <!-- ERROR ALERT -->
             <?php if (isset($_SESSION['error'])): ?>
                 <div id="alert-error"
                     class="my-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg shadow">
@@ -30,10 +30,9 @@ session_start();
                         <button onclick="$('#alert-error').fadeOut();" class="text-red-600 font-bold text-xl">&times;</button>
                     </div>
                 </div>
-            <?php unset($_SESSION['error']);
-            endif; ?>
+            <?php unset($_SESSION['error']); endif; ?>
 
-            <!-- ALERT SUCCESS -->
+            <!-- SUCCESS ALERT -->
             <?php if (isset($_SESSION['success'])): ?>
                 <div id="alert-success"
                     class="my-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg shadow">
@@ -42,30 +41,29 @@ session_start();
                         <button onclick="$('#alert-success').fadeOut();" class="text-green-700 font-bold text-xl">&times;</button>
                     </div>
                 </div>
-            <?php unset($_SESSION['success']);
-            endif; ?>
+            <?php unset($_SESSION['success']); endif; ?>
         </div>
 
         <form action="backend/register_process.php" method="POST" class="space-y-6">
             <div>
-                <label for="fullname" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                <label for="fullname" class="block text-sm font-medium text-gray-700">Full Name</label>
                 <input type="text" id="fullname" name="fullname" required
                     class="mt-1 w-full p-3 border border-gray-300 rounded-md"
                     placeholder="John Doe">
             </div>
 
             <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700">No Handphone</label>
+                <label for="phonenumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
                 <input type="text" id="phonenumber" name="phonenumber" required
                     class="mt-1 w-full p-3 border border-gray-300 rounded-md"
-                    placeholder="081234567890">
+                    placeholder="+62 812 3456 7890">
             </div>
 
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
                 <input type="email" id="email" name="email" required
                     class="mt-1 w-full p-3 border border-gray-300 rounded-md"
-                    placeholder="anda@email.com">
+                    placeholder="you@email.com">
             </div>
 
             <div>
@@ -76,7 +74,7 @@ session_start();
             </div>
 
             <div>
-                <label for="confirm_password" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+                <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
                 <input type="password" id="confirm_password" name="confirm_password" required
                     class="mt-1 w-full p-3 border border-gray-300 rounded-md"
                     placeholder="••••••••">
@@ -92,13 +90,14 @@ session_start();
 
         <div class="text-center mt-6">
             <p class="text-sm text-gray-600">
-                Sudah punya akun?
-                <a href="login.php" class="text-blue-600 font-medium hover:underline">Login di sini</a>
+                Already have an account?
+                <a href="login.php" class="text-blue-600 font-medium hover:underline">Login here</a>
             </p>
         </div>
     </div>
 
 </body>
+
 
 </html>
 

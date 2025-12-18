@@ -146,6 +146,29 @@ if ($res->num_rows > 0) {
     exit;
 }
 
+// validate if seat quota is less than booked seats
+$seatCheck = $conn->prepare("
+    SELECT booked_seats 
+    FROM flights 
+    WHERE id_flight = ?
+");
+
+if ($seatCheck) {
+    $seatCheck->bind_param("i", $id_flight);
+    $seatCheck->execute();
+    $result = $seatCheck->get_result();
+    $flightData = $result->fetch_assoc();
+
+    if ($flightData) {
+        $booked_seats = $flightData['booked_seats'];
+        if ($seats < $booked_seats) {
+            $_SESSION['error'] = "Seat quota cannot be less than already booked seats ($booked_seats).";
+            header("Location: ../../admin/penerbangan.php");
+            exit;
+        }
+    }
+}
+
 
 // ==========================================================
 // CALCULATE ARRIVAL TIME
